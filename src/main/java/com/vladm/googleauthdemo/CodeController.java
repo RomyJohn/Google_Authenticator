@@ -25,6 +25,7 @@ public class CodeController {
     private final GoogleAuthenticator gAuth;
     private final CredentialRepository credentialRepository;
 
+    // To create QR code
     @SneakyThrows
     @GetMapping("/generate/{username}")
     public void generate(@PathVariable String username, HttpServletResponse response) {
@@ -41,11 +42,13 @@ public class CodeController {
         outputStream.close();
     }
 
+    //To validate user on the basis of unique number or otp
     @PostMapping("/validate/key")
     public Validation validateKey(@RequestBody ValidateCodeDto body) {
         return new Validation(gAuth.authorizeUser(body.getUsername(), body.getCode()));
     }
 
+    //To get scratch or backup codes
     @GetMapping("/scratches/{username}")
     public List<Integer> getScratches(@PathVariable String username) {
         return getScratchCodes(username);
@@ -55,7 +58,8 @@ public class CodeController {
         return credentialRepository.getUser(username).getScratchCodes();
     }
 
-    @PostMapping("/scratches/")
+    //To remove scratch or backup codes after using it
+    @PostMapping("/scratches")
     public Validation validateScratch(@RequestBody ValidateCodeDto body) {
         List<Integer> scratchCodes = getScratchCodes(body.getUsername());
         Validation validation = new Validation(scratchCodes.contains(body.getCode()));
